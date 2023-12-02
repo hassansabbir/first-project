@@ -7,7 +7,7 @@ import {
   StudentMethods,
   StudentModel,
   TUserName,
-} from "./student/student.interface";
+} from "./student.interface";
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -160,9 +160,10 @@ const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
   },
 });
 
-studentSchema.methods.isUserExist = async function (id: string) {
-  const existingUser = await Student.findOne({ id });
-  return existingUser;
-};
+//creating a custom instance method
+// studentSchema.methods.isUserExist = async function (id: string) {
+//   const existingUser = await Student.findOne({ id });
+//   return existingUser;
+// };
 
 export const Student = model<TStudent, StudentModel>("Student", studentSchema);

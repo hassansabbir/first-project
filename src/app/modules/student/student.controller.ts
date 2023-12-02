@@ -6,8 +6,6 @@ import studentValidationSchema from "./student.validation";
 
 const createStudent = async (req: Request, res: Response) => {
   try {
-    //creating a schema validation using zod
-
     const { student: studentData } = req.body;
 
     //data validation using joi
