@@ -165,6 +165,7 @@ const studentSchema = new Schema<TStudent, StudentModel>({
     enum: ["active", "blocked"],
     default: "active",
   },
+  isDeleted: { type: Boolean, default: false },
 });
 
 //pre save middleware/ will work on create() save()
@@ -184,6 +185,21 @@ studentSchema.pre("save", async function (next) {
 //post save middleware
 studentSchema.post("save", function (doc, next) {
   doc.password = "";
+  next();
+});
+
+//query middleware
+
+studentSchema.pre("find", function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+studentSchema.pre("findOne", function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+studentSchema.pre("aggregate", function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
   next();
 });
 
