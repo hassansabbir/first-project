@@ -24,7 +24,6 @@ const userSchema = new Schema<TUser>(
 //pre save middleware/ will work on create() save()
 
 userSchema.pre("save", async function (next) {
-  // console.log(this, "pre hook: we will save the data");
   //hashing password and save in database
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this;
