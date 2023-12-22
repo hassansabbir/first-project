@@ -42,7 +42,7 @@ const deleteStudentsFromDb = async (id: string) => {
       { new: true, session }
     );
 
-    if (deleteUser) {
+    if (!deleteUser) {
       throw new AppError(httpStatus.BAD_REQUEST, "Failed to delete student");
     }
 
