@@ -5,11 +5,34 @@ import { User } from "../user/user.model";
 import httpStatus from "http-status";
 import { TStudent } from "./student.interface";
 
-const getAllStudentsFromDb = async () => {
-  const result = await Student.find().populate("admissionSemester").populate({
-    path: "academicDepartment",
-    populate: "academicFaculty",
+const getAllStudentsFromDb = async (query: Record<string, unknown>) => {
+  console.log("base query", query);
+  const queryObj = { ...query };
+
+  let searchTerm = "";
+
+  if (query?.searchTerm) {
+    searchTerm = query?.searchTerm as string;
+  }
+
+  const searchQuery = Student.find({
+    $or: ["email", "name.firstName", "presentAddress"].map((field) => ({
+      [field]: { $regex: searchTerm, $options: "i" },
+    })),
   });
+
+  //filtering
+  const excludeFields = ["searchTerm"];
+
+  excludeFields.forEach((el) => delete queryObj[el]);
+
+  const result = await searchQuery
+    .find(queryObj)
+    .populate("admissionSemester")
+    .populate({
+      path: "academicDepartment",
+      populate: "academicFaculty",
+    });
   return result;
 };
 const getSingleStudentsFromDb = async (id: string) => {
@@ -83,10 +106,11 @@ const deleteStudentsFromDb = async (id: string) => {
     await session.endSession();
 
     return deletedStudent;
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
-    throw new Error("failed to delete student");
+    throw new Error(error);
   }
 };
 
