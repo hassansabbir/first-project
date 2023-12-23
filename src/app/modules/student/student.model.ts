@@ -92,81 +92,96 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<TStudent, StudentModel>({
-  id: { type: String, required: true, unique: true },
-  user: {
-    type: Schema.Types.ObjectId,
-    required: [true, "User Id is required."],
-    unique: true,
-    ref: "User",
-  },
-  name: {
-    type: userNameSchema,
-    required: [true, "name is required. Please enter name"],
-  },
-  gender: {
-    type: String,
-    enum: {
-      values: ["male", "female", "other"],
-      message:
-        "{VALUE} is not valid. The gender can only be one of the following: 'male', 'female', 'other'",
+const studentSchema = new Schema<TStudent, StudentModel>(
+  {
+    id: { type: String, required: true, unique: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, "User Id is required."],
+      unique: true,
+      ref: "User",
     },
-    required: [true, "is required. Please enter"],
-  },
-  dateOfBirth: { type: Date },
-  email: {
-    type: String,
-    required: [true, "email is required. Please enter email"],
-    unique: true,
-    validate: {
-      validator: (value: string) => validator.isEmail(value),
-      message: "{VALUE} is not a valid email address",
+    name: {
+      type: userNameSchema,
+      required: [true, "name is required. Please enter name"],
     },
+    gender: {
+      type: String,
+      enum: {
+        values: ["male", "female", "other"],
+        message:
+          "{VALUE} is not valid. The gender can only be one of the following: 'male', 'female', 'other'",
+      },
+      required: [true, "is required. Please enter"],
+    },
+    dateOfBirth: { type: Date },
+    email: {
+      type: String,
+      required: [true, "email is required. Please enter email"],
+      unique: true,
+      validate: {
+        validator: (value: string) => validator.isEmail(value),
+        message: "{VALUE} is not a valid email address",
+      },
+    },
+    contactNo: {
+      type: String,
+      required: [true, "contactNo is required. Please enter contactNo"],
+    },
+    emergencyContactNo: {
+      type: String,
+      required: [
+        true,
+        "emergencyContactNo is required. Please enter emergencyContactNo",
+      ],
+    },
+    bloodGroup: {
+      type: String,
+      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    },
+    presentAddress: {
+      type: String,
+      required: [
+        true,
+        "presentAddress is required. Please enter presentAddress",
+      ],
+    },
+    permanentAddress: {
+      type: String,
+      required: [
+        true,
+        "permanentAddress is required. Please enter permanentAddress",
+      ],
+    },
+    guardian: {
+      type: guardianSchema,
+      required: [true, "guardian is required. Please enter guardian"],
+    },
+    localGuardian: {
+      type: localGuardianSchema,
+      required: [true, "localGuardian is required. Please enter localGuardian"],
+    },
+    profileImg: { type: String },
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: "AcademicSemester",
+    },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: "AcademicDepartment",
+    },
+    isDeleted: { type: Boolean, default: false },
   },
-  contactNo: {
-    type: String,
-    required: [true, "contactNo is required. Please enter contactNo"],
-  },
-  emergencyContactNo: {
-    type: String,
-    required: [
-      true,
-      "emergencyContactNo is required. Please enter emergencyContactNo",
-    ],
-  },
-  bloodGroup: {
-    type: String,
-    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
-  },
-  presentAddress: {
-    type: String,
-    required: [true, "presentAddress is required. Please enter presentAddress"],
-  },
-  permanentAddress: {
-    type: String,
-    required: [
-      true,
-      "permanentAddress is required. Please enter permanentAddress",
-    ],
-  },
-  guardian: {
-    type: guardianSchema,
-    required: [true, "guardian is required. Please enter guardian"],
-  },
-  localGuardian: {
-    type: localGuardianSchema,
-    required: [true, "localGuardian is required. Please enter localGuardian"],
-  },
-  profileImg: { type: String },
-  admissionSemester: {
-    type: Schema.Types.ObjectId,
-    ref: "AcademicSemester",
-  },
-  academicDepartment: {
-    type: Schema.Types.ObjectId,
-    ref: "AcademicDepartment",
-  },
-  isDeleted: { type: Boolean, default: false },
+  {
+    toJSON: {
+      virtuals: true,
+    },
+  }
+);
+
+//virtual
+studentSchema.virtual("fullName").get(function () {
+  return `${this?.name?.firstName} ${this?.name?.middleName} ${this?.name?.lastName}`;
 });
 
 //query middleware
