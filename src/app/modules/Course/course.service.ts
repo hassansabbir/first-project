@@ -39,10 +39,21 @@ const deleteCourseFromDb = async (id: string) => {
   );
   return result;
 };
+const updateCourseFromDb = async (id: string) => {
+  const result = await Course.findByIdAndUpdate(
+    id,
+    { isDeleted: true },
+    {
+      new: true,
+    }
+  );
+  return result;
+};
 
 export const CourseServices = {
   createCourseIntoDb,
   getAllCourseFromDb,
   getSingleCourseFromDb,
   deleteCourseFromDb,
+  updateCourseFromDb,
 };
