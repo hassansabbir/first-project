@@ -54,7 +54,7 @@ const updateCourseIntoDb = async (id: string, payload: Partial<TCourse>) => {
   //check if there is any pre requisite courses to update
 
   if (preRequisiteCourses && preRequisiteCourses.length > 0) {
-    //filter out the deleted fields
+    //filter out the deleted fields from db
     const allDeletedPreRequisites = preRequisiteCourses
       .filter((el) => el.course && el.isDeleted)
       .map((el) => el.course);
@@ -65,8 +65,7 @@ const updateCourseIntoDb = async (id: string, payload: Partial<TCourse>) => {
       },
     });
 
-    //filter out the new fields
-
+    //filter out the new fields from db
     const newPreRequisites = preRequisiteCourses?.filter(
       (el) => el.course && !el.isDeleted
     );
