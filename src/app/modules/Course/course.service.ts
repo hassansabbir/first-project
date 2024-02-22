@@ -69,11 +69,19 @@ const updateCourseIntoDb = async (id: string, payload: Partial<TCourse>) => {
         .filter((el) => el.course && el.isDeleted)
         .map((el) => el.course);
 
-      const deletedPreRequisiteCourses = await Course.findByIdAndUpdate(id, {
-        $pull: {
-          preRequisiteCourses: { course: { $in: allDeletedPreRequisites } },
+      const deletedPreRequisiteCourses = await Course.findByIdAndUpdate(
+        id,
+        {
+          $pull: {
+            preRequisiteCourses: { course: { $in: allDeletedPreRequisites } },
+          },
         },
-      });
+        {
+          new: true,
+          runValidators: true,
+          session,
+        }
+      );
       if (!deletedPreRequisiteCourses) {
         throw new AppError(httpStatus.BAD_REQUEST, "Failed to update course!");
       }
@@ -83,16 +91,24 @@ const updateCourseIntoDb = async (id: string, payload: Partial<TCourse>) => {
         (el) => el.course && !el.isDeleted
       );
 
-      const newPreRequisiteCourses = await Course.findByIdAndUpdate(id, {
-        $addToSet: { preRequisiteCourses: { $each: newPreRequisites } },
-      });
+      const newPreRequisiteCourses = await Course.findByIdAndUpdate(
+        id,
+        {
+          $addToSet: { preRequisiteCourses: { $each: newPreRequisites } },
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        }
+      );
       if (!newPreRequisiteCourses) {
         throw new AppError(httpStatus.BAD_REQUEST, "Failed to update course!");
       }
     }
 
-    session.commitTransaction();
-    session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
 
     const result = await Course.findById(id).populate(
       "preRequisiteCourses.course"
@@ -100,8 +116,8 @@ const updateCourseIntoDb = async (id: string, payload: Partial<TCourse>) => {
 
     return result;
   } catch (err) {
-    session.abortTransaction();
-    session.endSession();
+    await session.abortTransaction();
+    await session.endSession();
     throw new AppError(httpStatus.BAD_REQUEST, "Failed to update course.");
   }
 };
